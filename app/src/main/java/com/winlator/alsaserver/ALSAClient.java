@@ -4,6 +4,9 @@ import android.content.Context;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
+import android.media.AudioRecord;
+import android.media.MediaRecorder;
+
 import android.util.Log;
 
 import com.winlator.container.Container;
@@ -26,6 +29,7 @@ public class ALSAClient {
     private ByteBuffer sharedBuffer;
     private DataType dataType = DataType.U8;
     private AudioTrack audioTrack = null;
+    private AudioRecord audioRecord = null;
     private byte channels = 2;
     private int sampleRate = 0;
     private short previousUnderrunCount = 0;
@@ -132,6 +136,18 @@ public class ALSAClient {
                 this.audioTrack.setVolume(f);
             }
             this.audioTrack.play();
+            int minBufferSize = AudioRecord.getMinBufferSize(sampleRate, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
+audioRecord = new AudioRecord(
+    MediaRecorder.AudioSource.MIC,
+    sampleRate,
+    AudioFormat.CHANNEL_IN_MONO,
+    AudioFormat.ENCODING_PCM_16BIT,
+    Math.max(minBufferSize, bufferSize)
+);
+if (audioRecord.getState() == AudioRecord.STATE_INITIALIZED) {
+    audioRecord.startRecording();
+}
+
         }
     }
 
